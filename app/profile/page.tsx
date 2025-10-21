@@ -3,7 +3,7 @@
 import { useQuery } from '@tanstack/react-query';
 import Link from 'next/link';
 import Image from 'next/image';
-import { getMe } from '../../../lib/api/clientApi';
+import { getMe } from '../../lib/api/clientApi';
 import css from './Profile.module.css';
 
 export default function ProfilePage() {
@@ -13,19 +13,15 @@ export default function ProfilePage() {
   });
 
   if (isLoading) {
-    return (
-      <main className={css.mainContent}>
-        <p>Loading...</p>
-      </main>
-    );
+    return <p>Loading profile...</p>;
   }
 
-  if (error || !user) {
-    return (
-      <main className={css.mainContent}>
-        <p>Failed to load profile</p>
-      </main>
-    );
+  if (error) {
+    return <p>Error loading profile: {error.message}</p>;
+  }
+
+  if (!user) {
+    return <p>No user data found.</p>;
   }
 
   return (

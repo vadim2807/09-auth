@@ -1,14 +1,34 @@
 'use client';
 
+import { useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '../../lib/store/authStore';
-import { logout } from '../../lib/api/clientApi';
+import { logout, checkSession } from '../../lib/api/clientApi';
 import css from './AuthNavigation.module.css';
 
 export default function AuthNavigation() {
   const router = useRouter();
-  const { user, isAuthenticated, isLoading, clearIsAuthenticated } = useAuthStore();
+  const { user, isAuthenticated, isLoading, isInitialized, setUser, clearIsAuthenticated } = useAuthStore();
+
+  useEffect(() => {
+    if (isInitialized) return;
+    
+    const checkAuth = async () => {
+      try {
+        const user = await checkSession();
+        if (user) {
+          setUser(user);
+        } else {
+          clearIsAuthenticated();
+        }
+      } catch {
+        clearIsAuthenticated();
+      }
+    };
+
+    checkAuth();
+  }, [isInitialized, setUser, clearIsAuthenticated]);
 
   const handleLogout = async (e: React.MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault();
@@ -21,7 +41,7 @@ export default function AuthNavigation() {
     }
   };
 
-  if (isLoading) {
+  if (isLoading && !isInitialized) {
     return null;
   }
 

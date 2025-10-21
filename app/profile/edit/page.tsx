@@ -4,18 +4,18 @@ import { useState, useEffect, FormEvent } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
-import { getMe, updateMe } from '../../../../lib/api/clientApi';
+import { getMe, updateMe } from '../../../lib/api/clientApi';
 import css from './EditProfile.module.css';
 
 export default function EditProfilePage() {
   const router = useRouter();
   const queryClient = useQueryClient();
-  const [username, setUsername] = useState('');
-
-  const { data: user, isLoading } = useQuery({
+  const { data: user, isLoading, error } = useQuery({
     queryKey: ['user', 'me'],
     queryFn: getMe,
   });
+  const [username, setUsername] = useState('');
+  const [submitError, setSubmitError] = useState('');
 
   useEffect(() => {
     if (user) {
@@ -23,17 +23,25 @@ export default function EditProfilePage() {
     }
   }, [user]);
 
-  const updateMutation = useMutation({
+  const updateProfileMutation = useMutation({
     mutationFn: updateMe,
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ['user', 'me'] });
       router.push('/profile');
     },
+    onError: (err) => {
+      setSubmitError(err.message || 'Failed to update profile');
+    },
   });
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    updateMutation.mutate({ username });
+    setSubmitError('');
+    if (user && username !== user.username) {
+      updateProfileMutation.mutate({ username });
+    } else {
+      router.push('/profile');
+    }
   };
 
   const handleCancel = () => {
@@ -41,26 +49,17 @@ export default function EditProfilePage() {
   };
 
   if (isLoading) {
-    return (
-      <main className={css.mainContent}>
-        <p>Loading...</p>
-      </main>
-    );
+    return <p>Loading profile for editing...</p>;
   }
 
-  if (!user) {
-    return (
-      <main className={css.mainContent}>
-        <p>Failed to load profile</p>
-      </main>
-    );
+  if (error || !user) {
+    return <p>Error loading profile: {error?.message || 'User not found'}</p>;
   }
 
   return (
     <main className={css.mainContent}>
       <div className={css.profileCard}>
         <h1 className={css.formTitle}>Edit Profile</h1>
-
         <Image
           src={user.avatar}
           alt="User Avatar"
@@ -68,7 +67,6 @@ export default function EditProfilePage() {
           height={120}
           className={css.avatar}
         />
-
         <form className={css.profileInfo} onSubmit={handleSubmit}>
           <div className={css.usernameWrapper}>
             <label htmlFor="username">Username:</label>
@@ -80,17 +78,16 @@ export default function EditProfilePage() {
               onChange={(e) => setUsername(e.target.value)}
             />
           </div>
-
           <p>Email: {user.email}</p>
-
           <div className={css.actions}>
-            <button type="submit" className={css.saveButton} disabled={updateMutation.isPending}>
-              {updateMutation.isPending ? 'Saving...' : 'Save'}
+            <button type="submit" className={css.saveButton} disabled={updateProfileMutation.isPending}>
+              {updateProfileMutation.isPending ? 'Saving...' : 'Save'}
             </button>
             <button type="button" className={css.cancelButton} onClick={handleCancel}>
               Cancel
             </button>
           </div>
+          {submitError && <p className={css.error}>{submitError}</p>}
         </form>
       </div>
     </main>

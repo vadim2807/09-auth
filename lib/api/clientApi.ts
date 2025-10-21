@@ -98,8 +98,12 @@ export const logout = async (): Promise<void> => {
 };
 
 export const checkSession = async (): Promise<User | null> => {
-  const response: AxiosResponse<User | null> = await api.get(`/auth/session?t=${Date.now()}`);
-  return response.data;
+  const sessionResponse: AxiosResponse<{ success: boolean }> = await api.get('/auth/session');
+  if (sessionResponse.data.success) {
+    const userResponse: AxiosResponse<User> = await api.get('/users/me');
+    return userResponse.data;
+  }
+  return null;
 };
 
 // User

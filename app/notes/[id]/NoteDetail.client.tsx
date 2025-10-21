@@ -2,8 +2,9 @@
 
 import { useQuery } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
-import { fetchNoteById } from '../../../../lib/api/clientApi';
+import { fetchNoteById } from '../../../lib/api/clientApi';
 import css from './NoteDetail.module.css';
+import notFoundCss from '../../not-found.module.css';
 
 interface NoteDetailClientProps {
   noteId: string;
@@ -30,9 +31,17 @@ export default function NoteDetailClient({ noteId }: NoteDetailClientProps) {
   }
 
   if (error || !note) {
+    const is404 = (error as any)?.response?.status === 404;
     return (
       <div className={css.container}>
-        <p>Something went wrong.</p>
+        {is404 ? (
+          <>
+            <h1 className={notFoundCss.title}>404 - Page not found</h1>
+            <p className={notFoundCss.description}>Sorry, the page you are looking for does not exist.</p>
+          </>
+        ) : (
+          <p>Something went wrong.</p>
+        )}
         <button onClick={handleBack} className={css.button}>Go Back</button>
       </div>
     );
@@ -56,4 +65,3 @@ export default function NoteDetailClient({ noteId }: NoteDetailClientProps) {
     </div>
   );
 }
-

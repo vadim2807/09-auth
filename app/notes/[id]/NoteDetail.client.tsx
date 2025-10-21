@@ -31,7 +31,8 @@ export default function NoteDetailClient({ noteId }: NoteDetailClientProps) {
   }
 
   if (error || !note) {
-    const is404 = (error as any)?.response?.status === 404;
+    const axiosError = error as { response?: { status?: number } };
+    const is404 = axiosError?.response?.status === 404;
     return (
       <div className={css.container}>
         {is404 ? (

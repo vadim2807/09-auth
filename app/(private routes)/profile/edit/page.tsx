@@ -4,7 +4,7 @@ import { useState, useEffect, FormEvent } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
-import { getMe, updateMe } from '../../../lib/api/clientApi';
+import { getMe, updateMe } from '../../../../lib/api/clientApi';
 import css from './EditProfile.module.css';
 
 export default function EditProfilePage() {

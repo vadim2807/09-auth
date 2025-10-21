@@ -3,7 +3,7 @@
 import { useQuery } from '@tanstack/react-query';
 import Link from 'next/link';
 import Image from 'next/image';
-import { getMe } from '../../lib/api/clientApi';
+import { getMe } from '../../../lib/api/clientApi';
 import css from './Profile.module.css';
 
 export default function ProfilePage() {

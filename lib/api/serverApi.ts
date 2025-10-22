@@ -58,15 +58,15 @@ export const getMe = async (): Promise<User> => {
 };
 
 // Auth
-export const checkSession = async (): Promise<User | null> => {
+export const checkSession = async (): Promise<AxiosResponse<{ success: boolean }>> => {
   const cookieStore = await cookies();
   const cookieHeader = cookieStore.toString();
 
-  const response: AxiosResponse<User | null> = await api.get('/auth/session', {
+  const response: AxiosResponse<{ success: boolean }> = await api.get('/auth/session', {
     headers: {
       Cookie: cookieHeader,
     },
   });
-  return response.data;
+  return response;
 };
 

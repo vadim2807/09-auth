@@ -5,11 +5,13 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { getMe, updateMe } from '../../../../lib/api/clientApi';
+import { useAuthStore } from '../../../../lib/store/authStore';
 import css from './EditProfile.module.css';
 
 export default function EditProfilePage() {
   const router = useRouter();
   const queryClient = useQueryClient();
+  const { setUser } = useAuthStore();
   const { data: user, isLoading, error } = useQuery({
     queryKey: ['user', 'me'],
     queryFn: getMe,
@@ -25,7 +27,8 @@ export default function EditProfilePage() {
 
   const updateProfileMutation = useMutation({
     mutationFn: updateMe,
-    onSuccess: async () => {
+    onSuccess: async (updatedUser) => {
+      setUser(updatedUser);
       await queryClient.invalidateQueries({ queryKey: ['user', 'me'] });
       router.push('/profile');
     },

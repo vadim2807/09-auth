@@ -1,28 +1,15 @@
-'use client';
-
-import { useQuery } from '@tanstack/react-query';
 import Link from 'next/link';
 import Image from 'next/image';
-import { getMe } from '../../../lib/api/clientApi';
+import { getMe } from '../../../lib/api/serverApi';
 import css from './Profile.module.css';
 
-export default function ProfilePage() {
-  const { data: user, isLoading, error } = useQuery({
-    queryKey: ['user', 'me'],
-    queryFn: getMe,
-  });
+export const metadata = {
+  title: 'Profile',
+  description: 'User profile page',
+};
 
-  if (isLoading) {
-    return <p>Loading profile...</p>;
-  }
-
-  if (error) {
-    return <p>Error loading profile: {error.message}</p>;
-  }
-
-  if (!user) {
-    return <p>No user data found.</p>;
-  }
+export default async function ProfilePage() {
+  const user = await getMe();
 
   return (
     <main className={css.mainContent}>

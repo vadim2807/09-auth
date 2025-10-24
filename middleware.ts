@@ -34,6 +34,15 @@ export async function middleware(request: NextRequest) {
               response.cookies.set(name.trim(), value.trim());
             }
           }
+          // After successful session refresh, re-check route logic
+          const isPrivateRoute = PRIVATE_ROUTES.some(route => pathname.startsWith(route));
+          const isAuthRoute = AUTH_ROUTES.some(route => pathname.startsWith(route));
+          
+          // If user is now authenticated and on auth route, redirect to profile
+          if (isAuthRoute && isAuthenticated) {
+            return NextResponse.redirect(new URL('/profile', request.url));
+          }
+          
           return response;
         }
       }
